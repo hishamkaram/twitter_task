@@ -1,4 +1,5 @@
 import base64
+import time
 
 import requests
 from django.conf import settings
@@ -8,17 +9,117 @@ from requests_oauthlib import OAuth2
 from .utils import requests_retry_session, urljoin
 
 
+class Account:
+    """A Python Class which represent a twitter User Account.
+
+    Example usage:
+      First create an instance of the api.twitter.Account class:
+        >>> from api.serializers import Account
+        >>> account=Account(<twitter_api_user_data>)
+        >>> account.id
+        >>> account.fullname
+    """
+
+    def __init__(self, userdata):
+        """Instantiate a new api.serializers.Account object.
+
+        Args:
+          userdata (dict):
+            twitter api user object.
+
+        """
+        self.fullname = userdata['name']
+        self.href = "/%s" % (userdata['screen_name'])
+        self.id = userdata['id']
+
+
+class Tweet:
+    """A Python Class which represent a single tweet.
+
+    Example usage:
+      First create an instance of the api.twitter.Tweet class:
+        >>> from api.serializers import Tweet
+        >>> tweet=Tweet(<twitter_api_tweet_data>)
+        >>> tweet.text
+    """
+
+    def __init__(self, tweet_data):
+        """Instantiate a new api.serializers.Tweet object.
+
+        Args:
+          tweet_data (dict):
+            twitter api tweet object.
+
+        """
+        _hashtags = tweet_data['entities']['hashtags']
+        _str_date = tweet_data['created_at']
+        self.account = Account(tweet_data['user'])
+        self.date = self.formate_date(_str_date)
+        self.hashtags = ["#%s" % (tag['text']) for tag in _hashtags]
+        self.likes = tweet_data['favorite_count']
+        # Note: replies number is only available with
+        # the Premium and Enterprise tier products.
+        # https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/tweet-object # noqa
+        self.replies = 0
+        self.retweets = tweet_data['retweet_count']
+        self.text = tweet_data['text']
+
+    def parse_twitter_date(self, date):
+        """Convert string Date to python datetime object.
+
+        Args:
+            date (str):
+                date as string in twitter format.
+
+        Returns:
+            datetime object.
+
+        """
+        return time.strptime(date, '%a %b %d %H:%M:%S +0000 %Y')
+
+    def formate_date(self, date):
+        """Accept Date as String in twitter Format and return it in
+        ``%-I:%-M %p - %-d %b %Y`` format.
+
+        Args:
+            date (str):
+                date as string in twitter format.
+
+        Returns:
+            date formatted in target format.
+
+        """
+        return time.strftime('%-I:%-M %p - %-d %b %Y',
+                             self.parse_twitter_date(date))
+
+
 class TwitterApi(object):
+    """A python interface into communicate with the Twitter API.
+
+    Example usage:
+      To create an instance of the api.twitter.TwitterApi class:
+        >>> from api.twitter import TwitterApi
+        >>> api = TwitterApi(<api_key>,<api_secret>)
+      To fetch a hashtag tweets by hashtag name.
+        >>> tweets = api.get_hashtag_tweets(<hashtag_name>)
+        >>> print([tweet.text for tweet in tweets])
+      To fetch your friends (after being authenticated):
+        >>> users = api.GetFriends()
+        >>> print([u.name for u in users])
+    """
+
     def __init__(self, api_key, api_secret, base_url=settings.TWITTER_API_URL):
         """Instantiate a new api.twitter.TwitterApi object.
 
         Args:
           api_key (str):
-            Twitter API key
+            Twitter API key.
+
           api_secret (str):
-            Twitter API secret
+            Twitter API secret.
+
           base_url (str, optional):
-            The base URL to use to communicate with the Twitter API.
+            The base URL to use to communicate with the Twitter API,
             Defaults to https://api.twitter.com/1.1.
 
         """
@@ -77,4 +178,36 @@ class TwitterApi(object):
             },
             auth=self.__auth,
         )
-        return response.json()
+        data = response.json()
+        data = [Tweet(tweet_data) for tweet_data in data['statuses']]
+        return data
+
+    # def get_user_timeline(self, username,
+    #                       count=settings.TWITTER_DEFAULT_LIMIT):
+    #     """Get tweets by a hashtag.
+
+    #     Args:
+    #       hashtag (str):
+    #         Twitter Hashtag
+    #       count (int, optional):
+    #         The number of tweets to return per page, up to a maximum of 100.
+    #         Defaults to 30.
+
+    #     Returns:
+    #       requests.Session obj
+
+    #     """
+    #     url = urljoin(self.base_url, "/search/tweets.json")
+    #     response = self.session.get(
+    #         url,
+    #         params={
+    #             "q": hashtag,
+    #             "count": count,
+    #             "include_entities": True
+    #         },
+    #         auth=self.__auth,
+    #     )
+    #     return response.json()
+
+
+twitter_api = TwitterApi(settings.TWITTER_API_KEY, settings.TWITTER_API_SECRET)
