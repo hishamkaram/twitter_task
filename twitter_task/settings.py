@@ -35,6 +35,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # third party apps
+    "rest_framework",
+
+    # my own apps
     "api",
 ]
 
@@ -72,7 +76,7 @@ WSGI_APPLICATION = "twitter_task.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:"
+        "NAME": ':memory:',
     }
 }
 
@@ -121,3 +125,18 @@ TWITTER_API_KEY = "JLEIwUbrfN68HH2dqE4ittNwg"
 TWITTER_API_SECRET = "ph4UYeuhTCMFVDTw2rzQ4K2KaooDVi301Z99gk7xkk9PAhSfnR"
 TWITTER_API_URL = "https://api.twitter.com/1.1"
 TWITTER_DEFAULT_LIMIT = 30
+
+
+# django rest config
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ],
+    'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata',
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [],
+    'UNAUTHENTICATED_USER': None,
+}
