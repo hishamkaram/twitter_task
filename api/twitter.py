@@ -1,3 +1,22 @@
+"""Twitter Api Handler.
+
+This module allow you Connect to twitter api and fetch some useful data from.
+
+    Example usage:
+      To create an instance of the api.twitter.TwitterApi class:
+        >>> from api.twitter import TwitterApi
+        >>> api = TwitterApi(<api_key>,<api_secret>)
+      To fetch a hashtag tweets by hashtag name.
+        >>> tweets = api.get_hashtag_tweets(<hashtag_name>)
+        >>> print([tweet.text for tweet in tweets])
+      To fetch tweets on user timeline:
+        >>> user_tweets = api.get_user_timeline(<user_screen_name>)
+        >>> print([ut.text for ut in user_tweets])
+      To fetch tweets on user timeline with limit:
+        >>> user_tweets = api.get_user_timeline(<user_screen_name>,<count>)
+        >>> print([ut.text for ut in user_tweets])
+
+"""
 import base64
 import time
 
@@ -54,7 +73,7 @@ class Tweet:
         _hashtags = tweet_data['entities']['hashtags']
         _str_date = tweet_data['created_at']
         self.account = Account(tweet_data['user'])
-        self.date = self.formate_date(_str_date)
+        self.date = self.format_date(_str_date)
         self.hashtags = ["#%s" % (tag['text']) for tag in _hashtags]
         self.likes = tweet_data['favorite_count']
         # Note: replies number is only available with
@@ -77,16 +96,15 @@ class Tweet:
         """
         return time.strptime(date, '%a %b %d %H:%M:%S +0000 %Y')
 
-    def formate_date(self, date):
-        """Accept Date as String in twitter Format and return it in
-        ``%-I:%-M %p - %-d %b %Y`` format.
+    def format_date(self, date):
+        """Accept Date as string in twitter format and return it in human format.
 
         Args:
             date (str):
                 date as string in twitter format.
 
         Returns:
-            date formatted in target format.
+            formatted date in more readable format.
 
         """
         return time.strftime('%-I:%-M %p - %-d %b %Y',
@@ -94,19 +112,7 @@ class Tweet:
 
 
 class TwitterApi(object):
-    """A python interface into communicate with the Twitter API.
-
-    Example usage:
-      To create an instance of the api.twitter.TwitterApi class:
-        >>> from api.twitter import TwitterApi
-        >>> api = TwitterApi(<api_key>,<api_secret>)
-      To fetch a hashtag tweets by hashtag name.
-        >>> tweets = api.get_hashtag_tweets(<hashtag_name>)
-        >>> print([tweet.text for tweet in tweets])
-      To fetch your friends (after being authenticated):
-        >>> users = api.GetFriends()
-        >>> print([u.name for u in users])
-    """
+    """A python interface into communicate with the Twitter API."""
 
     def __init__(self, api_key, api_secret, base_url=settings.TWITTER_API_URL):
         """Instantiate a new api.twitter.TwitterApi object.
@@ -165,7 +171,7 @@ class TwitterApi(object):
             Defaults to 30.
 
         Returns:
-          requests.Session obj
+          list of hashtag tweets
 
         """
         url = urljoin(self.base_url, "/search/tweets.json")
@@ -182,32 +188,34 @@ class TwitterApi(object):
         data = [Tweet(tweet_data) for tweet_data in data['statuses']]
         return data
 
-    # def get_user_timeline(self, username,
-    #                       count=settings.TWITTER_DEFAULT_LIMIT):
-    #     """Get tweets by a hashtag.
+    def get_user_timeline(self, username,
+                          count=settings.TWITTER_DEFAULT_LIMIT):
+        """Get the list of tweets that the user has on his feed.
 
-    #     Args:
-    #       hashtag (str):
-    #         Twitter Hashtag
-    #       count (int, optional):
-    #         The number of tweets to return per page, up to a maximum of 100.
-    #         Defaults to 30.
+        Args:
+          username (str):
+            Twitter screen_name, username.
+          count (int, optional):
+            The number of tweets to return per page, up to a maximum of 100.
+            Defaults to 30.
 
-    #     Returns:
-    #       requests.Session obj
+        Returns:
+          list of tweets that the user has on his feed.
 
-    #     """
-    #     url = urljoin(self.base_url, "/search/tweets.json")
-    #     response = self.session.get(
-    #         url,
-    #         params={
-    #             "q": hashtag,
-    #             "count": count,
-    #             "include_entities": True
-    #         },
-    #         auth=self.__auth,
-    #     )
-    #     return response.json()
+        """
+        url = urljoin(self.base_url, "/statuses/user_timeline.json")
+        response = self.session.get(
+            url,
+            params={
+                "screen_name": username,
+                "count": count,
+                # "include_entities": True
+            },
+            auth=self.__auth,
+        )
+        data = response.json()
+        data = [Tweet(tweet_data) for tweet_data in data]
+        return data
 
 
 twitter_api = TwitterApi(settings.TWITTER_API_KEY, settings.TWITTER_API_SECRET)
