@@ -121,10 +121,10 @@ USE_TZ = True
 STATIC_URL = "/static/"
 
 # Twitter Settings
-TWITTER_API_KEY = "JLEIwUbrfN68HH2dqE4ittNwg"
-TWITTER_API_SECRET = "ph4UYeuhTCMFVDTw2rzQ4K2KaooDVi301Z99gk7xkk9PAhSfnR"
-TWITTER_API_URL = "https://api.twitter.com/1.1"
-TWITTER_DEFAULT_LIMIT = 30
+TWITTER_API_KEY = os.getenv("TWITTER_API_KEY", "JLEIwUbrfN68HH2dqE4ittNwg")
+TWITTER_API_SECRET = os.getenv("TWITTER_API_SECRET", "ph4UYeuhTCMFVDTw2rzQ4K2KaooDVi301Z99gk7xkk9PAhSfnR")
+TWITTER_API_URL = os.getenv("TWITTER_API_URL", "https://api.twitter.com/1.1")
+TWITTER_DEFAULT_LIMIT = int(os.getenv("TWITTER_DEFAULT_LIMIT", "30"))
 
 
 # django rest config
