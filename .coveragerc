@@ -1,0 +1,5 @@
+[run]
+omit = twitter_task/settings.py,
+       twitter_task/wsgi.py,
+       twitter_task/settings.py,
+       */migrations/*
