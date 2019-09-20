@@ -185,7 +185,10 @@ class TwitterApi(object):
             auth=self.__auth,
         )
         data = response.json()
-        data = [Tweet(tweet_data) for tweet_data in data['statuses']]
+        if response.ok:
+            data = [Tweet(tweet_data) for tweet_data in data['statuses']]
+        else:
+            raise TwitterException(data['error'], code=response.status_code)
         return data
 
     def get_user_timeline(self, username,
@@ -214,8 +217,23 @@ class TwitterApi(object):
             auth=self.__auth,
         )
         data = response.json()
-        data = [Tweet(tweet_data) for tweet_data in data]
+        if response.ok:
+            data = [Tweet(tweet_data) for tweet_data in data]
+        else:
+            raise TwitterException(data['error'], code=response.status_code)
         return data
+
+
+class TwitterException(Exception):
+    """A Python class which inherit from Exception used to fire exception when an error occurred."""
+
+    def __init__(self, message, code, *args):
+        self.message = message
+        self.code = code
+        super(TwitterException, self).__init__(message, code, *args)
+
+    def __str__(self):
+        return self.message
 
 
 twitter_api = TwitterApi(settings.TWITTER_API_KEY, settings.TWITTER_API_SECRET)

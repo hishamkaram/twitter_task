@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .serializers import TweetSerializer
-from .twitter import twitter_api
+from .twitter import TwitterException, twitter_api
 
 
 @api_view(['GET'])
@@ -50,6 +50,9 @@ def get_user_timeline(request, screen_name):
     default_limit = settings.TWITTER_DEFAULT_LIMIT
     limit = request.GET.get("limit", default_limit)
     limit = int(limit)
-    tweets = twitter_api.get_user_timeline(screen_name, limit)
-    serializer = TweetSerializer(tweets, many=True)
-    return Response(serializer.data)
+    try:
+        tweets = twitter_api.get_user_timeline(screen_name, limit)
+        serializer = TweetSerializer(tweets, many=True)
+        return Response(serializer.data, status=200)
+    except TwitterException as e:
+        return Response({"error": str(e)}, status=e.code)
