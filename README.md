@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/hishamkaram/twitter_task.svg?branch=master)](https://travis-ci.org/hishamkaram/twitter_task)
+[![Coverage Status](https://coveralls.io/repos/github/hishamkaram/twitter_task/badge.svg?branch=master)](https://coveralls.io/github/hishamkaram/twitter_task?branch=master)
 # twitter_task
 This is a django project which provide two RESTful endpoints to provide data from Twitter.
 
