@@ -1,0 +1,23 @@
+dist: xenial
+language: python
+cache:
+  directories:
+    - "$HOME/.cache/pip"
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
+python:
+  - "3.6"
+  - "3.7"
+# command to install dependencies
+install:
+  - pip install -r requirements.txt
+  - pip install coveralls
+# command to run tests
+script:
+  - flake8
+  - coverage run --source=api  ./manage.py test
+after_success:
+  - coveralls
+notifications:
+  email:
+    - hishamwaleedkaram@gmail.com
