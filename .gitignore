@@ -216,6 +216,7 @@ pip-log.txt
 
 #Sphinx generated document
 docs/_build/
+sphinx_docs/_build/
 
 
 .vscode
