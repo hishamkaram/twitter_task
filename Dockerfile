@@ -14,5 +14,7 @@ RUN mkdir -p ${APP_DIR} \
 # switch to project dir
 WORKDIR ${APP_DIR}
 RUN pip install -r requirements.txt
+# cleanup image
+RUN rm -rf ~/.cache/pip && rm -rf /root/.cache
 USER ${APP_USER}
 CMD ["/bin/bash"]
