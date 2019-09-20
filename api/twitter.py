@@ -173,6 +173,9 @@ class TwitterApi(object):
         Returns:
           list of hashtag tweets
 
+        Raises:
+            TwitterException: if twitter api returned an error.
+
         """
         url = urljoin(self.base_url, "/search/tweets.json")
         response = self.session.get(
@@ -188,7 +191,11 @@ class TwitterApi(object):
         if response.ok:
             data = [Tweet(tweet_data) for tweet_data in data['statuses']]
         else:
-            raise TwitterException(data['error'], code=response.status_code)
+            if 'error' in data:
+                raise TwitterException(data['error'], code=response.status_code)
+            elif 'errors' in data:
+                error = data['errors'][0]
+                raise TwitterException(error['message'], code=response.status_code)
         return data
 
     def get_user_timeline(self, username,
@@ -220,7 +227,11 @@ class TwitterApi(object):
         if response.ok:
             data = [Tweet(tweet_data) for tweet_data in data]
         else:
-            raise TwitterException(data['error'], code=response.status_code)
+            if 'error' in data:
+                raise TwitterException(data['error'], code=response.status_code)
+            elif 'errors' in data:
+                error = data['errors'][0]
+                raise TwitterException(error['message'], code=response.status_code)
         return data
 
 
@@ -228,11 +239,24 @@ class TwitterException(Exception):
     """A Python class which inherit from Exception used to fire exception when an error occurred."""
 
     def __init__(self, message, code, *args):
+        """Instantiate a new api.twitter.TwitterException object.
+
+        Args:
+          message (str):
+            Twitter API error message.
+
+          code (str):
+            Twitter API status code.
+
+          *args (iteable): arguments passed to the base class.
+
+        """
         self.message = message
         self.code = code
         super(TwitterException, self).__init__(message, code, *args)
 
     def __str__(self):
+        """Representation of the error."""
         return self.message
 
 

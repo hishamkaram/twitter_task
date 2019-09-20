@@ -13,7 +13,7 @@ from .twitter import TwitterException, twitter_api
 
 @api_view(['GET'])
 def get_tweets_by_hashtag(request, hashtag):
-    """Api Endpoint to Get Twitter Tweets By Hashtag.
+    """Endpoint to Get Twitter Tweets By Hashtag.
 
     Args:
         request (django.http.HttpRequest):
@@ -35,7 +35,7 @@ def get_tweets_by_hashtag(request, hashtag):
 
 @api_view(['GET'])
 def get_user_timeline(request, screen_name):
-    """Api Endpoint to Get a list of tweets that the user has on his feed.
+    """Endpoint to Get a list of tweets that the user has on his feed.
 
     Args:
         request (django.http.HttpRequest):
