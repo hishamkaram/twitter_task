@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.urls import path
 
-from .views import get_tweets_by_hashtag
+from .views import get_tweets_by_hashtag, get_user_timeline
 
 urlpatterns = [
     path('hashtags/<str:hashtag>', get_tweets_by_hashtag),
+    path('users/<str:screen_name>', get_user_timeline),
 ]
