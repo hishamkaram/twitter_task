@@ -25,6 +25,7 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   intro
    modules/twitter
    modules/serializers
    modules/views
