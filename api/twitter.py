@@ -114,6 +114,8 @@ class Tweet:
 class TwitterApi(object):
     """A python interface into communicate with the Twitter API."""
 
+    _django_cached_obj = None
+
     def __init__(self, api_key, api_secret, base_url=settings.TWITTER_API_URL):
         """Instantiate a new api.twitter.TwitterApi object.
 
@@ -132,6 +134,8 @@ class TwitterApi(object):
         self.api_key = api_key
         self.api_secret = api_secret
         self.base_url = base_url
+        self.bearer_token = None
+        self.__auth = None
         self.get_bearer_token()
         self.set_requests_auth()
         self.session = requests_retry_session()
@@ -141,7 +145,12 @@ class TwitterApi(object):
         self.__auth = OAuth2(token=self.bearer_token)
 
     def get_bearer_token(self):
-        """Generate a Bearer Token from twitter api_key and api_secret ."""
+        """Generate a Bearer Token from twitter api_key and api_secret .
+
+        Raises:
+            requests.exceptions.ConnectionError: if failed to connect to twitter.
+
+        """
         key = quote(self.api_key)
         secret = quote(self.api_secret)
         bearer_token = base64.b64encode("{}:{}".format(key,
@@ -234,6 +243,23 @@ class TwitterApi(object):
                 raise TwitterException(error['message'], code=response.status_code)
         return data
 
+    @classmethod
+    def init_from_settings(cls):
+        """Instantiate api.twitter.TwitterApi instance with twitter app_key and app_secret from django settings.
+
+        Returns:
+            instance of api.twitter.TwitterApi.
+
+        Raises:
+            requests.exceptions.ConnectionError: if failed to connect to twitter.
+
+        """
+        if cls._django_cached_obj:
+            return cls._django_cached_obj
+        api_obj = cls(settings.TWITTER_API_KEY, settings.TWITTER_API_SECRET)
+        cls._django_cached_obj = api_obj
+        return api_obj
+
 
 class TwitterException(Exception):
     """A Python class which inherit from Exception used to fire exception when an error occurred."""
@@ -258,6 +284,3 @@ class TwitterException(Exception):
     def __str__(self):
         """Representation of the error."""
         return self.message
-
-
-twitter_api = TwitterApi(settings.TWITTER_API_KEY, settings.TWITTER_API_SECRET)
