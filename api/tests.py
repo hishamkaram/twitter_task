@@ -1,6 +1,9 @@
+from unittest.mock import patch
+
 from django.conf import settings
 from django.shortcuts import reverse
 from django.test import TestCase
+from requests.exceptions import ConnectionError
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -65,6 +68,21 @@ class ApiTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertLessEqual(len(response.data), 50)
 
+    def test_get_tweets_by_hashtag_view_failure(self):
+        """Test get_tweets_by_hashtag view failure."""
+        url = reverse('tweets-hashtag', kwargs={"hashtag": self.hashtag})
+        response = self.client.get(url, format='json')
+        with patch.object(TwitterApi, 'get_hashtag_tweets') as mock_method:
+            mock_method.side_effect = TwitterException("Mocked function error", 500)
+            response = self.client.get(url, format='json')
+            self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+            self.assertIn("error", response.data)
+        with patch.object(TwitterApi, 'get_hashtag_tweets') as mock_method:
+            mock_method.side_effect = ConnectionError()
+            response = self.client.get(url, format='json')
+            self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+            self.assertIn("error", response.data)
+
     def test_get_user_timeline_view_success(self):
         """Test get_user_timeline view success."""
         url = reverse('user-timeline', kwargs={"screen_name": self.screen_name})
@@ -81,3 +99,8 @@ class ApiTestCase(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertIn("error", response.data)
+        with patch.object(TwitterApi, 'get_user_timeline') as mock_method:
+            mock_method.side_effect = ConnectionError()
+            response = self.client.get(url, format='json')
+            self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+            self.assertIn("error", response.data)
