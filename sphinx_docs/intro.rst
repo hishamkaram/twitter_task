@@ -31,6 +31,14 @@ How to Setup?
 
       ``pip install -r requirements.txt``
 
+  * Using the Twitter API requires an authorized `Twitter App <https://developer.twitter.com/en/docs/basics/apps/overview>`_ and authenticated requests so please create a twitter app and configure the project as following:
+
+    * open ``twitter_task/settings.py`` navigate to the end of this file change the values of the following variables:
+
+      * ``TWITTER_API_KEY``  is the API key of your `twitter application <https://developer.twitter.com/apps>`_
+      * ``TWITTER_API_SECRET``  is the API secret key of your `twitter application <https://developer.twitter.com/apps>`_
+      * save and close the file.
+
   * 
     run django server using the following command:
 
@@ -45,6 +53,14 @@ How to Setup?
   * install `Docker <https://docs.docker.com/install/>`_.
   * install `Docker Compose <https://docs.docker.com/compose/install/>`_.
   * clone this repo and navigate to the repo directory.
+  * Using the Twitter API requires an authorized `Twitter App <https://developer.twitter.com/en/docs/basics/apps/overview>`_ and authenticated requests so please create a twitter app and configure the project as following:
+
+    * open ``docker-compose.yml``  and change the following environment variables
+
+      * ``TWITTER_API_KEY``  is the API key of your `twitter application <https://developer.twitter.com/apps>`_
+      * ``TWITTER_API_SECRET``  is the API secret key of your `twitter application <https://developer.twitter.com/apps>`_
+      * save and close the file.
+
   * 
     run the following command to build and start the container.
 
@@ -65,3 +81,11 @@ Available Endpoints:
   * endpoint url: ``http://<server_address>:<server_port>/users/<screen_name_or_username>``
 
     * limit: integer, specifies the number of tweets to retrieve, the default is 30
+
+Documentation
+=============
+
+
+* to build the sphinx documentation navigate ``sphinx_docs`` and run the following command:
+    ``make html``.
+* now the html of the documentation is available under this directory ``_build/html``.
