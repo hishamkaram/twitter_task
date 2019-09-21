@@ -16,6 +16,7 @@ This is a django project which provide two RESTful endpoints to provide data fro
     	- open `twitter_task/settings.py` navigate to the end of this file change the values of the following variables:
         	- `TWITTER_API_KEY`  is the API key of your [twitter application](https://developer.twitter.com/apps)
         	- `TWITTER_API_SECRET`  is the API secret key of your [twitter application](https://developer.twitter.com/apps)
+        	- save and close the file.
 	- run django server using the following command:
 
 		`python manage.py runserver`
@@ -29,6 +30,7 @@ This is a django project which provide two RESTful endpoints to provide data fro
     	- open `docker-compose.yml`  and change the following environment variables
           	- `TWITTER_API_KEY`  is the API key of your [twitter application](https://developer.twitter.com/apps)
         	- `TWITTER_API_SECRET`  is the API secret key of your [twitter application](https://developer.twitter.com/apps)
+          	- save and close the file.
 	- run the following command to build and start the container.
 		
 		`docker-compose up -d --build`
